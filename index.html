@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mushroom Box Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.5.4/dist/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f9;
+      color: #333;
+      text-align: center;
+    }
+
+    .dashboard {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .indicator {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 300px;
+      margin: 20px;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      background: #ffffff;
+    }
+
+    .indicator span {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .indicator .value {
+      font-size: 2rem;
+      color: #0078d7;
+    }
+
+    .warning {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: red;
+      font-weight: bold;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <h1>Mushroom Box Dashboard</h1>
+
+    <!-- Temperature Indicator -->
+    <div class="indicator" id="temperature-indicator">
+      <span>Temperature:</span>
+      <span class="value" id="temperature-value">--°F</span>
+    </div>
+
+    <!-- Humidity Indicator -->
+    <div class="indicator" id="humidity-indicator">
+      <span>Humidity:</span>
+      <span class="value" id="humidity-value">--%</span>
+    </div>
+
+    <!-- Warning Message -->
+    <div class="warning" id="warning-message">
+      Warning: Temperature is critical!
+    </div>
+  </div>
+
+  <script>
+    const socket = io("YOUR_SERVER_URL"); // Replace with your Render server URL
+
+    const temperatureValue = document.getElementById("temperature-value");
+    const humidityValue = document.getElementById("humidity-value");
+    const warningMessage = document.getElementById("warning-message");
+
+    // Listen for updates from the server
+    socket.on("update", (data) => {
+      temperatureValue.textContent = `${data.temperature}°F`;
+      humidityValue.textContent = `${data.humidity}%`;
+
+      // Hide the warning message if the temperature is normal
+      if (data.temperature > 34) {
+        warningMessage.style.display = "none";
+      }
+    });
+
+    // Listen for warning events
+    socket.on("warning", (data) => {
+      warningMessage.textContent = data.message;
+      warningMessage.style.display = "block";
+    });
+  </script>
+</body>
+</html>
+
