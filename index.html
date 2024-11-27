@@ -88,7 +88,7 @@
       temperatureValue.textContent = `${data.temperature}°F`;
       humidityValue.textContent = `${data.humidity}%`;
 
-      // Hide the warning message if the temperature is normal
+      // Show warning if temperature hits a critical threshold
       if (data.temperature > 34) {
         warningMessage.style.display = "none";
       }
