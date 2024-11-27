@@ -3,9 +3,17 @@ const axios = require("axios");
 const http = require("http");
 const { Server } = require("socket.io");
 require("dotenv").config(); // For managing environment variables
+const cors = require("cors");
 
 // Initialize Express App
 const app = express();
+
+// Add CORS middleware
+app.use(cors({
+    origin: "https://mushroombox.netlify.app", // Allow your Netlify URL
+    methods: ["GET", "POST"], // Allow GET and POST requests
+    allowedHeaders: ["Content-Type"], // Allow specific headers
+}));
 
 // Create HTTP Server for Socket.IO
 const server = http.createServer(app);
