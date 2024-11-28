@@ -5,31 +5,13 @@ const { Server } = require("socket.io");
 require("dotenv").config();
 const cors = require("cors");
 
+const Timer = require("./timer.js"); // Ensure this file exists and is correctly implemented
+
 const app = express();
-
-const Timer = require("./timer.js");
-
-// Define a task to execute periodically
-const fetchData = () => {
-  console.log("Fetching data...");
-  // Your data-fetching logic here
-};
-
-// Create a timer instance
-const dataFetchTimer = Timer(fetchData, 5000);
-
-// Start the timer
-dataFetchTimer.start();
-
-// Stop the timer after 30 seconds (example)
-setTimeout(() => {
-  dataFetchTimer.stop();
-}, 30000);
-
 
 // Add CORS middleware
 app.use(cors({
-    origin: "https://mushroombox.netlify.app",
+    origin: "https://mushroombox.netlify.app", // Your Netlify app URL
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
 }));
@@ -38,7 +20,7 @@ app.use(cors({
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "https://mushroombox.netlify.app",
+        origin: "https://mushroombox.netlify.app", // Match your frontend origin
         methods: ["GET", "POST"],
     },
 });
@@ -61,6 +43,22 @@ let latestData = {
     warning: null,
 };
 
+// Periodically fetch or process data
+const fetchData = () => {
+    console.log("Fetching data...");
+    // If you have additional fetch logic, include it here
+};
+
+// Create a timer instance
+const dataFetchTimer = Timer(fetchData, 5000); // Adjust interval (5 seconds)
+dataFetchTimer.start();
+
+// Stop the timer after a specific duration (optional example: 30 seconds)
+setTimeout(() => {
+    dataFetchTimer.stop();
+    console.log("Data fetch timer stopped.");
+}, 30000);
+
 // Listen to Particle Cloud Events
 axios
     .get(PARTICLE_STREAM_URL, { responseType: "stream" })
@@ -80,8 +78,10 @@ axios
 
                     console.log("Updated Data:", latestData);
 
+                    // Emit the latest data to all connected clients
                     io.emit("update", latestData);
 
+                    // Handle warnings
                     if (event.name === "temperatureWarning") {
                         latestData.warning = `Warning: Temperature reached ${eventData}°F!`;
                         io.emit("warning", { message: latestData.warning });
@@ -97,7 +97,7 @@ axios
     });
 
 // Serve static files for the dashboard
-app.use(express.static("public"));
+app.use(express.static("public")); // Ensure `public` folder exists with assets like `index.html`
 
 app.get("/", (req, res) => {
     res.send("Mushroom Box Dashboard Backend is Running!");
@@ -106,6 +106,11 @@ app.get("/", (req, res) => {
 // Handle Socket.IO connections
 io.on("connection", (socket) => {
     console.log("Client connected:", socket.id);
+
+    // Send the latest data to the newly connected client
+    if (latestData.temperature && latestData.humidity) {
+        socket.emit("update", latestData);
+    }
 
     socket.on("disconnect", () => {
         console.log("Client disconnected:", socket.id);
