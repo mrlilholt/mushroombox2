@@ -7,6 +7,26 @@ const cors = require("cors");
 
 const app = express();
 
+const Timer = require("./timer.js");
+
+// Define a task to execute periodically
+const fetchData = () => {
+  console.log("Fetching data...");
+  // Your data-fetching logic here
+};
+
+// Create a timer instance
+const dataFetchTimer = Timer(fetchData, 5000);
+
+// Start the timer
+dataFetchTimer.start();
+
+// Stop the timer after 30 seconds (example)
+setTimeout(() => {
+  dataFetchTimer.stop();
+}, 30000);
+
+
 // Add CORS middleware
 app.use(cors({
     origin: "https://mushroombox.netlify.app",
