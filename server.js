@@ -50,14 +50,17 @@ const fetchData = () => {
 };
 
 // Create a timer instance
-const dataFetchTimer = Timer(fetchData, 5000); // Adjust interval (5 seconds)
+// Create a timer instance
+const dataFetchTimer = new Timer(fetchData, 5000); // Use `new` with the Timer class
+
+// Start the timer
 dataFetchTimer.start();
 
-// Stop the timer after a specific duration (optional example: 30 seconds)
+// Example: Stop the timer after 30 seconds (optional)
 setTimeout(() => {
     dataFetchTimer.stop();
-    console.log("Data fetch timer stopped.");
 }, 30000);
+
 
 // Listen to Particle Cloud Events
 axios
